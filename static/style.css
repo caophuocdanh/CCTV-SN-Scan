@@ -1,0 +1,374 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f0f2f5;
+    color: #1c1e21;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+/*    align-items: center;*/
+    min-height: 100vh;
+    text-align: center;
+}
+
+main {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
+    padding: 24px;
+    max-width: 500px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+h1 {
+    font-size: 2em; /* Kích thước lớn hơn */
+    color: #1877f2; /* Màu xanh Facebook */
+    margin-bottom: 20px; /* Khoảng cách dưới */
+    text-transform: uppercase; /* Đảm bảo chữ hoa */
+    letter-spacing: 1.5px; /* Khoảng cách chữ */
+    border-bottom: 2px solid #e7f3ff; /* Đường kẻ dưới */
+    padding-bottom: 10px;
+}
+
+header h1 {
+    font-size: 28px;
+    color: #1877f2;
+    margin-bottom: 8px;
+}
+
+header p {
+    font-size: 16px;
+    color: #606770;
+    margin-bottom: 24px;
+}
+
+.scanner-section form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.file-label {
+    background-color: #e7f3ff;
+    border: 1px dashed #1877f2;
+    border-radius: 6px;
+    padding: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #1877f2;
+    transition: background-color 0.2s;
+}
+
+.file-label:hover {
+    background-color: #dcebff;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+button {
+    background-color: #1877f2;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #166fe5;
+}
+
+.brand-selection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px; /* Khoảng cách giữa các item */
+    margin-top: 20px;
+}
+
+.brand-item {
+    border: 1px solid #dddfe2;
+    border-radius: 8px;
+    padding: 2%;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    width: 40%;
+}
+
+.brand-item:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+    border-color: #1877f2;
+}
+
+.brand-item a {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.brand-item img {
+    width: 100%; /* Changed to percentage */
+    height: auto; /* Changed to auto */
+    border-radius: 8px;
+    object-fit: contain;
+}
+
+.brand-item p {
+    font-weight: 600;
+    color: #1c1e21;
+    margin: 0;
+}
+
+.result-section {
+    margin-top: 24px;
+    text-align: left;
+}
+
+.result-section h2 {
+    font-size: 20px;
+    color: #1c1e21;
+    border-bottom: 1px solid #dddfe2;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+}
+
+.result-box {
+    padding: 16px;
+    border-radius: 6px;
+    word-wrap: break-word;
+}
+
+.result-box.success {
+    background-color: #e7f3ff;
+    border-left: 4px solid #1877f2;
+}
+
+.result-box.error {
+    background-color: #ffebe8;
+    border-left: 4px solid #fa383e;
+    color: #212529;
+}
+
+.result-box p {
+    margin: 0;
+}
+
+.result-box pre {
+    white-space: pre-wrap;
+    margin-top: 8px;
+    font-family: "Courier New", Courier, monospace;
+    background-color: #f0f2f5;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+footer {
+    margin-top: 24px;
+    font-size: 12px;
+    color: #90949c;
+}
+
+/* Data Table Styles */
+.data-section {
+    margin-top: 32px;
+}
+
+.data-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.data-header h2 {
+    font-size: 20px;
+    color: #1c1e21;
+    margin: 0;
+}
+
+.clear-button {
+    background-color: #fa383e;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 8px 12px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.clear-button:hover {
+    background-color: #e32b31;
+}
+
+.data-grid {
+    border: 1px solid #dddfe2;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.grid-header, .grid-row {
+    display: grid;
+    grid-template-columns: 20% 40% 40%; /* Modified */
+    gap: 8px;
+    padding: 12px;
+    align-items: center;
+}
+
+.grid-header {
+    background-color: #f0f2f5;
+    font-weight: bold;
+    color: #606770;
+    border-bottom: 1px solid #dddfe2;
+    position: sticky; /* Giúp header đứng yên khi cuộn */
+    top: 0;
+}
+
+.grid-header a {
+    color: inherit; /* Lấy màu từ cha */
+    text-decoration: none;
+    display: block;
+}
+
+.grid-header a:hover {
+    color: #1877f2; /* Đổi màu khi di chuột */
+}
+
+.sort-arrow {
+    font-size: 0.8em;
+    margin-left: 4px;
+}
+
+.export-button {
+    background-color: #1d6f42;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.export-button:hover {
+    background-color: #165934;
+}
+
+.grid-body .grid-row {
+    border-bottom: 1px solid #e7e7e7;
+}
+
+.grid-body .grid-row:last-child {
+    border-bottom: none;
+}
+
+.grid-item {
+    font-size: 14px;
+    /* Cho phép xuống dòng và bẻ gãy các từ dài không thể ngắt */
+    white-space: normal;
+    overflow-wrap: break-word;
+    /* Quan trọng: Cho phép grid item co lại nhỏ hơn nội dung của nó */
+    min-width: 0;
+}
+
+.grid-row.no-data {
+    display: block;
+    text-align: center;
+    padding: 24px;
+    color: #90949c;
+}
+
+/* Save Section Styles */
+.save-section {
+    margin-top: 24px;
+    padding: 20px;
+    background-color: #e7f3ff;
+    border-radius: 8px;
+    border: 1px solid #b9d7f7;
+}
+
+.save-section h2 {
+    font-size: 20px;
+    color: #1877f2;
+    margin-top: 0;
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.save-section form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #606770;
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+.form-group input[type="text"],
+.form-group textarea {
+    padding: 10px;
+    border: 1px solid #dddfe2;
+    border-radius: 6px;
+    font-size: 16px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-group input[type="text"][readonly] {
+    background-color: #f0f2f5;
+    color: #606770;
+    cursor: not-allowed;
+}
+
+.save-section button {
+    background-color: #36a420; /* Green */
+    font-size: 16px;
+    padding: 12px;
+}
+
+.save-section button:hover {
+    background-color: #2b8a17;
+}
+
+.back-button {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #1877f2;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.back-button:hover {
+    text-decoration: underline;
+}

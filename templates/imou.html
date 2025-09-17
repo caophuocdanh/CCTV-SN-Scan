@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Trình Quét Mã QR IMOU{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('home') }}" class="back-button">← Quay lại Trang chủ</a>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <header>
+        <h1>TRÌNH QUÉT MÃ QR IMOU</h1>
+        <p>Chọn một hình ảnh để tự động quét và chuẩn bị lưu thông tin.</p>
+    </header>
+
+    <section class="scanner-section">
+        <form method="post" enctype="multipart/form-data" onchange="this.submit()">
+            <label for="file" class="file-label">Chọn ảnh QR Code</label>
+            <input type="file" name="file" id="file" accept="image/*">
+        </form>
+    </section>
+
+    {% if error %}
+    <section class="result-section">
+        <article class="result-box error">
+            <p>{{ error }}</p>
+        </article>
+    </section>
+    {% endif %}
+
+    {% if temp_data %}
+    <section class="save-section">
+        <h2>Chuẩn bị lưu dữ liệu</h2>
+        <form action="{{ url_for('imou_save_data') }}" method="post">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>SN</label>
+                    <input type="text" value="{{ temp_data.sn }}" readonly>
+                    <input type="hidden" name="sn" value="{{ temp_data.sn }}">
+                </div>
+                <div class="form-group">
+                    <label>SC</label>
+                    <input type="text" value="{{ temp_data.sc }}" readonly>
+                    <input type="hidden" name="sc" value="{{ temp_data.sc }}">
+                </div>
+                <div class="form-group">
+                    <label>PID</label>
+                    <input type="text" value="{{ temp_data.pid }}" readonly>
+                    <input type="hidden" name="pid" value="{{ temp_data.pid }}">
+                </div>
+                <div class="form-group full-width">
+                    <label for="note">Note</label>
+                    <textarea name="note" id="note" rows="3" placeholder="Nhập ghi chú..."></textarea>
+                </div>
+            </div>
+            <button type="submit">Lưu vào hệ thống</button>
+        </form>
+    </section>
+    {% endif %}
+
+    <section class="data-section">
+        <div class="data-header">
+            <h2>Dữ liệu đã lưu</h2>
+            <a href="{{ url_for('imou_export_excel') }}" class="export-button">Export Excel</a>
+        </div>
+        <div class="data-grid hik-data-grid">
+            <div class="grid-header">
+                {% macro sortable_header(column_key, column_display) %}
+                    <div class="grid-item">
+                        {% set new_direction = 'desc' if sort_by == column_key and direction == 'asc' else 'asc' %}
+                        <a href="{{ url_for('imou_index', sort_by=column_key, direction=new_direction) }}">
+                            {{ column_display }}
+                            {% if sort_by == column_key %}
+                                <span class="sort-arrow">{% if direction == 'asc' %}▲{% else %}▼{% endif %}</span>
+                            {% endif %}
+                        </a>
+                    </div>
+                {% endmacro %}
+                {{ sortable_header('stt', 'STT') }}
+                {{ sortable_header('sn', 'SN') }}
+                {{ sortable_header('note', 'NOTE') }}
+            </div>
+            <div class="grid-body">
+                {% if records %}
+                    {% for record in records %}
+                        <div class="grid-row">
+                            <div class="grid-item" title="{{ record.stt }}">{{ record.stt }}</div>
+                            <div class="grid-item" title="{{ record.sn }}">{{ record.sn }}</div>
+                            <div class="grid-item" title="{{ record.note }}">{{ record.note }}</div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="grid-row no-data">
+                        <p>Chưa có dữ liệu nào.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+{% endblock %}

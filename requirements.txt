@@ -1,0 +1,6 @@
+Flask
+pyzbar
+opencv-python-headless
+numpy
+pandas
+openpyxl

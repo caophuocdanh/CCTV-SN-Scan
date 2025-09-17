@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trình Quét Mã QR</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='currentColor'><path d='M0 0h7v7H0V0zm1 1v5h5V1H1z'/><path d='M2 2h3v3H2V2z'/><path d='M9 0h7v7H9V0zm1 1v5h5V1h-5z'/><path d='M10 2h3v3h-3V2z'/><path d='M0 9h7v7H0V9zm1 1v5h5v-5H1z'/><path d='M2 10h3v3H2v-3z'/><path d='M9 9h1v1H9V9zm1 1h1v1h-1v-1zm-1 1h1v1H9v-1zm1 1h1v1h-1v-1zm-1 1h1v1H9v-1zm2-3h1v1h-1v-1zm1 1h1v1h-1v-1zm-1 1h1v1h-1v-1zm1 1h1v1h-1v-1zm1-3h1v1h-1v-1zm1 1h1v1h-1v-1z'/></svg>">
+</head>
+<body>
+    <main>
+        <header>
+            <h1>Trình Quét Mã QR</h1>
+            <p>Chọn một hình ảnh để tự động quét và chuẩn bị lưu thông tin.</p>
+        </header>
+
+        <section class="scanner-section">
+            <form method="post" enctype="multipart/form-data" onchange="this.submit()">
+                <label for="file" class="file-label">Chọn ảnh QR Code</label>
+                <input type="file" name="file" id="file" accept="image/*">
+            </form>
+        </section>
+
+        {% if error %}
+        <section class="result-section">
+            <article class="result-box error">
+                <p>{{ error }}</p>
+            </article>
+        </section>
+        {% endif %}
+
+        {% if temp_data %}
+        <section class="save-section">
+            <h2>Chuẩn bị lưu dữ liệu</h2>
+            <form action="/save" method="post">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>SN</label>
+                        <input type="text" value="{{ temp_data.sn }}" readonly>
+                        <input type="hidden" name="sn" value="{{ temp_data.sn }}">
+                    </div>
+                    <div class="form-group">
+                        <label>SC</label>
+                        <input type="text" value="{{ temp_data.sc }}" readonly>
+                        <input type="hidden" name="sc" value="{{ temp_data.sc }}">
+                    </div>
+                    <div class="form-group">
+                        <label>PID</label>
+                        <input type="text" value="{{ temp_data.pid }}" readonly>
+                        <input type="hidden" name="pid" value="{{ temp_data.pid }}">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="note">Note</label>
+                        <textarea name="note" id="note" rows="3" placeholder="Nhập ghi chú..."></textarea>
+                    </div>
+                </div>
+                <button type="submit">Lưu vào hệ thống</button>
+            </form>
+        </section>
+        {% endif %}
+
+        <section class="data-section">
+            <div class="data-header">
+                <h2>Dữ liệu đã lưu</h2>
+                <a href="{{ url_for('export_excel') }}" class="export-button">Export Excel</a>
+            </div>
+            <div class="data-grid">
+                <div class="grid-header">
+                    {% macro sortable_header(column_key, column_display) %}
+                        <div class="grid-item">
+                            {% set new_direction = 'desc' if sort_by == column_key and direction == 'asc' else 'asc' %}
+                            <a href="{{ url_for('index', sort_by=column_key, direction=new_direction) }}">
+                                {{ column_display }}
+                                {% if sort_by == column_key %}
+                                    <span class="sort-arrow">{% if direction == 'asc' %}▲{% else %}▼{% endif %}</span>
+                                {% endif %}
+                            </a>
+                        </div>
+                    {% endmacro %}
+                    {{ sortable_header('stt', 'STT') }}
+                    {{ sortable_header('sn', 'SN') }}
+                    {{ sortable_header('sc', 'SC') }}
+                    {{ sortable_header('pid', 'PID') }}
+                    {{ sortable_header('note', 'Note') }}
+                </div>
+                <div class="grid-body">
+                    {% if records %}
+                        {% for record in records %}
+                            <div class="grid-row">
+                                <div class="grid-item" title="{{ record.stt }}">{{ record.stt }}</div>
+                                <div class="grid-item" title="{{ record.sn }}">{{ record.sn }}</div>
+                                <div class="grid-item" title="{{ record.sc }}">{{ record.sc }}</div>
+                                <div class="grid-item" title="{{ record.pid }}">{{ record.pid }}</div>
+                                <div class="grid-item" title="{{ record.note }}">{{ record.note }}</div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="grid-row no-data">
+                            <p>Chưa có dữ liệu nào.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer>
+    </footer>
+</body>
+</html>

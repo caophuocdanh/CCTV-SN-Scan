@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Xác nhận xóa dữ liệu{% endblock %}
+
+{% block content %}
+    <script type="text/javascript">
+        function confirmDeletion() {
+            if (confirm("Bạn có chắc chắn muốn xóa tất cả dữ liệu? Hành động này không thể hoàn tác!")) {
+                window.location.href = "{{ delete_url_on_confirm }}";
+            } else {
+                window.location.href = "{{ redirect_url_on_cancel }}";
+            }
+        }
+        window.onload = confirmDeletion;
+    </script>
+    <h1>Đang chuyển hướng để xác nhận...</h1>
+    <p>Nếu không có gì xảy ra, vui lòng <a href="{{ redirect_url_on_cancel }}">quay lại</a>.</p>
+{% endblock %}
