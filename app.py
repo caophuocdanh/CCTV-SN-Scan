@@ -6,7 +6,7 @@ import os
 import json
 import pandas as pd
 import io
-from openpyxl.styles import Font, PatternFill, Border, Side
+from openpyxl.styles import Font, PatternFill, Border, Side, Alignment
 from openpyxl.utils import get_column_letter
 from datetime import datetime
 
@@ -81,11 +81,10 @@ def home():
 
 @app.route('/imou', methods=['GET', 'POST'])
 def imou_index():
-    error = None
     temp_data = None
     if request.method == 'POST':
         if 'file' not in request.files or not request.files['file'].filename:
-            error = 'Bạn chưa chọn file nào.'
+            flash('Bạn chưa chọn file nào.', 'error')
         else:
             file = request.files['file']
             try:
@@ -101,11 +100,11 @@ def imou_index():
                     if parsed_data:
                         temp_data = parsed_data # Dữ liệu tạm thời để hiển thị
                     else:
-                        error = 'Mã QR không đúng định dạng chuẩn.'
+                        flash('Mã QR không đúng định dạng chuẩn.', 'error')
                 else:
-                    error = 'Không tìm thấy mã QR trong ảnh.'
+                    flash('Không tìm thấy mã QR trong ảnh.', 'error')
             except Exception as e:
-                error = f'Đã xảy ra lỗi khi xử lý file: {str(e)}'
+                flash(f'Đã xảy ra lỗi khi xử lý file: {str(e)}', 'error')
 
     # Lấy tham số sort từ URL
     sort_by = request.args.get('sort_by', 'stt')
@@ -121,7 +120,6 @@ def imou_index():
 
     return render_template('imou.html', 
                            records=records, 
-                           error=error, 
                            temp_data=temp_data, 
                            sort_by=sort_by, 
                            direction=direction)
@@ -135,7 +133,7 @@ def imou_save_data():
     note = request.form.get('note', '')
 
     if not all([sn, sc, pid]):
-        # Xử lý lỗi nếu thiếu dữ liệu, mặc dù không nên xảy ra
+        flash('Thiếu thông tin SN, SC hoặc PID để lưu bản ghi IMOU.', 'error')
         return redirect(url_for('imou_index'))
 
     records = read_data(IMOU_DATA_FILE)
@@ -170,31 +168,20 @@ def imou_delete_confirmed():
 
     return redirect(url_for('imou_index'))
 
-@app.route('/imou/export')
-def imou_export_excel():
-    """Xuất dữ liệu IMOU ra file Excel đã được định dạng."""
-    records = read_data(IMOU_DATA_FILE)
-    if not records:
-        flash('Không có dữ liệu IMOU để xuất.', 'warning')
-        return redirect(url_for('imou_index'))
-
-    df = pd.DataFrame(records)
-    # Viết hoa tiêu đề cột
-    df.columns = ['STT', 'SN', 'SC', 'PID', 'NOTE']
-
-    output = io.BytesIO()
-    writer = pd.ExcelWriter(output, engine='openpyxl')
-    df.to_excel(writer, index=False, sheet_name='ScanData')
-
-    # Lấy các đối tượng workbook và worksheet để định dạng
-    workbook = writer.book
-    worksheet = writer.sheets['ScanData']
+def _format_excel_worksheet(worksheet, df_columns, title):
+    # Thêm và định dạng tiêu đề
+    worksheet.insert_rows(1) # Chèn một hàng mới ở đầu
+    worksheet.merge_cells(start_row=1, end_row=1, start_column=1, end_column=len(df_columns))
+    title_cell = worksheet.cell(row=1, column=1, value=title)
+    title_cell.font = Font(bold=True, size=16)
+    title_cell.alignment = Alignment(horizontal='center', vertical='center')
+    title_cell.fill = PatternFill(start_color="D9D9D9", end_color="D9D9D9", fill_type="solid") # Thêm màu nền cho tiêu đề
 
     # --- Bắt đầu định dạng ---
-    # 1. Định dạng Header
+    # 1. Định dạng Header (bây giờ ở dòng 2)
     header_font = Font(bold=True, color="FFFFFF")
     header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
-    for cell in worksheet[1]: # Dòng 1 là header
+    for cell in worksheet[2]: # Dòng 2 là header
         cell.font = header_font
         cell.fill = header_fill
 
@@ -206,7 +193,9 @@ def imou_export_excel():
         max_length = 0
         column_letter = get_column_letter(col_num)
 
-        for cell in column_cells:
+        # Bắt đầu từ hàng 2 để tính toán độ rộng cột (bỏ qua hàng tiêu đề đã merge)
+        for cell_idx, cell in enumerate(worksheet.iter_rows(min_row=2, max_row=worksheet.max_row, min_col=col_num, max_col=col_num)):
+            cell = cell[0] # iter_rows trả về tuple, lấy cell đầu tiên
             # Thêm viền cho tất cả các ô
             cell.border = thin_border
             # Tìm độ dài lớn nhất trong cột
@@ -219,6 +208,31 @@ def imou_export_excel():
         # Điều chỉnh độ rộng cột
         adjusted_width = (max_length + 2)
         worksheet.column_dimensions[column_letter].width = adjusted_width
+    # --- Kết thúc định dạng ---
+
+@app.route('/imou/export', methods=['POST'])
+def imou_export_excel():
+    """Xuất dữ liệu IMOU ra file Excel đã được định dạng."""
+    records = read_data(IMOU_DATA_FILE)
+    if not records:
+        flash('Không có dữ liệu IMOU để xuất.', 'warning')
+        return redirect(url_for('imou_index'))
+
+    title = request.form.get('title', 'Dữ liệu quét IMOU') # Lấy title từ form, mặc định là 'Dữ liệu quét IMOU'
+
+    df = pd.DataFrame(records)
+    # Viết hoa tiêu đề cột
+    df.columns = ['No.', 'SERIAL NUMBER', 'SECURITY CODE', 'PID', 'NOTE']
+
+    output = io.BytesIO()
+    writer = pd.ExcelWriter(output, engine='openpyxl')
+    df.to_excel(writer, index=False, sheet_name='ScanData', startrow=0) # Bắt đầu ghi từ hàng thứ 1
+
+    # Lấy các đối tượng workbook và worksheet để định dạng
+    workbook = writer.book
+    worksheet = writer.sheets['ScanData']
+
+    _format_excel_worksheet(worksheet, df.columns, title)
     # --- Kết thúc định dạng ---
 
     writer.close()
@@ -236,11 +250,10 @@ def imou_export_excel():
 
 @app.route('/hik', methods=['GET', 'POST'])
 def hik_index():
-    error = None
     temp_data = None
     if request.method == 'POST':
         if 'file' not in request.files or not request.files['file'].filename:
-            error = 'Bạn chưa chọn file nào.'
+            flash('Bạn chưa chọn file nào.', 'error')
         else:
             file = request.files['file']
             try:
@@ -255,11 +268,11 @@ def hik_index():
                     if parsed_data:
                         temp_data = parsed_data # Dữ liệu tạm thời để hiển thị
                     else:
-                        error = parse_error if parse_error else 'Mã Barcode không đúng định dạng hoặc nội dung rỗng.'
+                        flash(parse_error if parse_error else 'Mã Barcode không đúng định dạng hoặc nội dung rỗng.', 'error')
                 else:
-                    error = 'Không tìm thấy mã Barcode trong ảnh.'
+                    flash('Không tìm thấy mã Barcode trong ảnh.', 'error')
             except Exception as e:
-                error = f'Đã xảy ra lỗi khi xử lý file: {str(e)}'
+                flash(f'Đã xảy ra lỗi khi xử lý file: {str(e)}', 'error')
 
     # Lấy tham số sort từ URL
     sort_by = request.args.get('sort_by', 'stt')
@@ -275,19 +288,18 @@ def hik_index():
 
     return render_template('hik.html', 
                            records=records, 
-                           error=error, 
                            temp_data=temp_data, 
                            sort_by=sort_by, 
                            direction=direction)
 
 @app.route('/hik/save', methods=['POST'])
 def hik_save_data():
-    """Lưu dữ liệu HIK vào file JSON."""
+    """Lưu dữ liệu Hikvision vào file JSON."""
     sn = request.form.get('sn')
     note = request.form.get('note', '')
 
     if not sn:
-        # Xử lý lỗi nếu thiếu dữ liệu, mặc dù không nên xảy ra
+        flash('Thiếu thông tin SN để lưu bản ghi Hikvision.', 'error')
         return redirect(url_for('hik_index'))
 
     records = read_data(HIK_DATA_FILE)
@@ -300,55 +312,29 @@ def hik_save_data():
     write_data(records, HIK_DATA_FILE)
     return redirect(url_for('hik_index'))
 
-@app.route('/hik/export')
+@app.route('/hik/export', methods=['POST'])
 def hik_export_excel():
     """Xuất dữ liệu HIK ra file Excel đã được định dạng."""
     records = read_data(HIK_DATA_FILE)
     if not records:
+        flash('Không có dữ liệu Hikvision để xuất.', 'warning')
         return redirect(url_for('hik_index'))
+
+    title = request.form.get('title', 'Dữ liệu quét Hikvision') # Lấy title từ form, mặc định là 'Dữ liệu quét Hikvision'
 
     df = pd.DataFrame(records)
     # Viết hoa tiêu đề cột
-    df.columns = ['STT', 'SN', 'NOTE']
+    df.columns = ['No.', 'SERIAL NUMBER', 'NOTE']
 
     output = io.BytesIO()
     writer = pd.ExcelWriter(output, engine='openpyxl')
-    df.to_excel(writer, index=False, sheet_name='ScanData')
+    df.to_excel(writer, index=False, sheet_name='ScanData', startrow=0) # Bắt đầu ghi từ hàng thứ 1
 
     # Lấy các đối tượng workbook và worksheet để định dạng
     workbook = writer.book
     worksheet = writer.sheets['ScanData']
 
-    # --- Bắt đầu định dạng ---
-    # 1. Định dạng Header
-    header_font = Font(bold=True, color="FFFFFF")
-    header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
-    for cell in worksheet[1]: # Dòng 1 là header
-        cell.font = header_font
-        cell.fill = header_fill
-
-    # 2. Kẻ viền và tự động điều chỉnh độ rộng cột
-    thin_border_side = Side(border_style="thin", color="000000")
-    thin_border = Border(left=thin_border_side, right=thin_border_side, top=thin_border_side, bottom=thin_border_side)
-
-    for col_num, column_cells in enumerate(worksheet.columns, 1):
-        max_length = 0
-        column_letter = get_column_letter(col_num)
-
-        for cell in column_cells:
-            # Thêm viền cho tất cả các ô
-            cell.border = thin_border
-            # Tìm độ dài lớn nhất trong cột
-            try:
-                if len(str(cell.value)) > max_length:
-                    max_length = len(str(cell.value))
-            except:
-                pass
-        
-        # Điều chỉnh độ rộng cột
-        adjusted_width = (max_length + 2)
-        worksheet.column_dimensions[column_letter].width = adjusted_width
-    # --- Kết thúc định dạng ---
+    _format_excel_worksheet(worksheet, df.columns, title)
 
     writer.close()
     output.seek(0)
@@ -365,14 +351,14 @@ def hik_export_excel():
 
 @app.route('/hik/clear')
 def hik_clear_data():
-    """Hiển thị trang xác nhận xóa dữ liệu HIK."""
+    """Hiển thị trang xác nhận xóa dữ liệu Hikvision."""
     return render_template('confirm_clear.html',
                            redirect_url_on_cancel=url_for('hik_index'),
                            delete_url_on_confirm=url_for('hik_delete_confirmed'))
 
 @app.route('/hik/delete_confirmed')
 def hik_delete_confirmed():
-    """Xóa dữ liệu HIK sau khi đã xác nhận."""
+    """Xóa dữ liệu Hikvision sau khi đã xác nhận."""
     if os.path.exists(HIK_DATA_FILE) and os.path.getsize(HIK_DATA_FILE) > 2: # >2 để chắc chắn file không phải là "[]"
         # Tạo tên file backup với ngày giờ
         timestamp_str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
@@ -385,11 +371,10 @@ def hik_delete_confirmed():
 
 @app.route('/dahua', methods=['GET', 'POST'])
 def dahua_index():
-    error = None
     temp_data = None
     if request.method == 'POST':
         if 'file' not in request.files or not request.files['file'].filename:
-            error = 'Bạn chưa chọn file nào.'
+            flash('Bạn chưa chọn file nào.', 'error')
         else:
             file = request.files['file']
             try:
@@ -404,11 +389,11 @@ def dahua_index():
                     if parsed_data:
                         temp_data = parsed_data # Dữ liệu tạm thời để hiển thị
                     else:
-                        error = parse_error if parse_error else 'Mã Barcode không đúng định dạng hoặc nội dung rỗng.'
+                        flash(parse_error if parse_error else 'Mã Barcode không đúng định dạng hoặc nội dung rỗng.', 'error')
                 else:
-                    error = 'Không tìm thấy mã Barcode trong ảnh.'
+                    flash('Không tìm thấy mã Barcode trong ảnh.', 'error')
             except Exception as e:
-                error = f'Đã xảy ra lỗi khi xử lý file: {str(e)}'
+                flash(f'Đã xảy ra lỗi khi xử lý file: {str(e)}', 'error')
 
     # Lấy tham số sort từ URL
     sort_by = request.args.get('sort_by', 'stt')
@@ -424,7 +409,6 @@ def dahua_index():
 
     return render_template('dahua.html', 
                            records=records, 
-                           error=error, 
                            temp_data=temp_data, 
                            sort_by=sort_by, 
                            direction=direction)
@@ -436,7 +420,7 @@ def dahua_save_data():
     note = request.form.get('note', '')
 
     if not sn:
-        # Xử lý lỗi nếu thiếu dữ liệu, mặc dù không nên xảy ra
+        flash('Thiếu thông tin SN để lưu bản ghi Dahua.', 'error')
         return redirect(url_for('dahua_index'))
 
     records = read_data(DAHUA_DATA_FILE)
@@ -469,30 +453,40 @@ def dahua_delete_confirmed():
 
     return redirect(url_for('dahua_index'))
 
-@app.route('/dahua/export')
+@app.route('/dahua/export', methods=['POST'])
 def dahua_export_excel():
     """Xuất dữ liệu Dahua ra file Excel đã được định dạng."""
     records = read_data(DAHUA_DATA_FILE)
     if not records:
+        flash('Không có dữ liệu Dahua để xuất.', 'warning')
         return redirect(url_for('dahua_index'))
+
+    title = request.form.get('title', 'Dữ liệu quét DAHUA') # Lấy title từ form, mặc định là 'Dữ liệu quét DAHUA'
 
     df = pd.DataFrame(records)
     # Viết hoa tiêu đề cột
-    df.columns = ['STT', 'SN', 'NOTE']
+    df.columns = ['No.', 'SERIAL NUMBER', 'NOTE']
 
     output = io.BytesIO()
     writer = pd.ExcelWriter(output, engine='openpyxl')
-    df.to_excel(writer, index=False, sheet_name='ScanData')
+    df.to_excel(writer, index=False, sheet_name='ScanData', startrow=0) # Bắt đầu ghi từ hàng thứ 1
 
     # Lấy các đối tượng workbook và worksheet để định dạng
     workbook = writer.book
     worksheet = writer.sheets['ScanData']
 
+    # Thêm và định dạng tiêu đề
+    worksheet.insert_rows(1) # Chèn một hàng mới ở đầu
+    worksheet.merge_cells(start_row=1, end_row=1, start_column=1, end_column=len(df.columns))
+    title_cell = worksheet.cell(row=1, column=1, value=title)
+    title_cell.font = Font(bold=True, size=16)
+    title_cell.alignment = Alignment(horizontal='center', vertical='center')
+
     # --- Bắt đầu định dạng ---
-    # 1. Định dạng Header
+    # 1. Định dạng Header (bây giờ ở dòng 2)
     header_font = Font(bold=True, color="FFFFFF")
     header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
-    for cell in worksheet[1]: # Dòng 1 là header
+    for cell in worksheet[2]: # Dòng 2 là header
         cell.font = header_font
         cell.fill = header_fill
 
@@ -504,7 +498,9 @@ def dahua_export_excel():
         max_length = 0
         column_letter = get_column_letter(col_num)
 
-        for cell in column_cells:
+        # Bắt đầu từ hàng 2 để tính toán độ rộng cột (bỏ qua hàng tiêu đề đã merge)
+        for cell_idx, cell in enumerate(worksheet.iter_rows(min_row=2, max_row=worksheet.max_row, min_col=col_num, max_col=col_num)):
+            cell = cell[0] # iter_rows trả về tuple, lấy cell đầu tiên
             # Thêm viền cho tất cả các ô
             cell.border = thin_border
             # Tìm độ dài lớn nhất trong cột

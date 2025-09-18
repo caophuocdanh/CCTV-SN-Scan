@@ -3,12 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Ứng dụng Quét QR{% endblock %}</title>
+    <title>{% block title %}HỆ THỐNG QUÉT & QUẢN LÝ SERIAL CCTV{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='currentColor'><path d='M0 0h7v7H0V0zm1 1v5h5V1H1z'/><path d='M2 2h3v3H2V2z'/><path d='M9 0h7v7H9V0zm1 1v5h5V1h-5z'/><path d='M10 2h3v3h-3V2z'/><path d='M0 9h7v7H0V9zm1 1v5h5v-5H1z'/><path d='M2 10h3v3H2v-3z'/><path d='M9 9h1v1H9V9zm1 1h1v1h-1v-1zm-1 1h1v1H9v-1zm1 1h1v1h-1v-1zm-1 1h1v1H9v-1zm2-3h1v1h-1v-1zm1 1h1v1h-1v-1zm-1 1h1v1h-1v-1zm1 1h1v1h-1v-1zm1-3h1v1h-1v-1zm1 1h1v1h-1v-1z'/></svg>">
 </head>
 <body>
     <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                        <li class="flash-{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
         {% block content %}{% endblock %}
     </main>
 </body>

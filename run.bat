@@ -6,6 +6,6 @@ CALL .\venv\Scripts\activate
 ECHO Starting Flask server...
 ECHO You can access it from other devices on the same network.
 
-flask run --host=0.0.0.0 --port=5005
+flask run --host=0.0.0.0 --port=5005 --debug
 
 PAUSE

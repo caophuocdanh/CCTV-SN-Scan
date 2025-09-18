@@ -39,7 +39,7 @@
         <form action="{{ url_for('dahua_save_data') }}" method="post">
             <div class="form-grid">
                 <div class="form-group">
-                    <label>SN</label>
+                    <label>SERIAL NUMBER</label>
                     <input type="text" value="{{ temp_data.sn }}" readonly>
                     <input type="hidden" name="sn" value="{{ temp_data.sn }}">
                 </div>
@@ -56,8 +56,11 @@
     <section class="data-section">
         <div class="data-header">
             <h2>Dữ liệu đã lưu</h2>
-            <a href="{{ url_for('dahua_export_excel') }}" class="export-button">Export Excel</a>
+            <button type="button" class="export-button" onclick="exportDahuaExcel()">Export Excel</button>
         </div>
+        <form id="exportFormDahua" action="{{ url_for('dahua_export_excel') }}" method="post" style="display:none;">
+            <input type="hidden" name="title" id="exportTitleDahua">
+        </form>
         <div class="data-grid hik-data-grid">
             <div class="grid-header">
                 {% macro sortable_header(column_key, column_display) %}
@@ -71,8 +74,8 @@
                         </a>
                     </div>
                 {% endmacro %}
-                {{ sortable_header('stt', 'STT') }}
-                {{ sortable_header('sn', 'SN') }}
+                {{ sortable_header('stt', 'No.') }}
+                {{ sortable_header('sn', 'SERIAL NUMBER') }}
                 {{ sortable_header('note', 'NOTE') }}
             </div>
             <div class="grid-body">
@@ -92,4 +95,13 @@
             </div>
         </div>
     </section>
+<script>
+function exportDahuaExcel() {
+    const title = prompt("Vui lòng nhập tiêu đề cho file Excel:", "Dữ liệu quét Dahua");
+    if (title !== null) { // Nếu người dùng không nhấn Cancel
+        document.getElementById('exportTitleDahua').value = title;
+        document.getElementById('exportFormDahua').submit();
+    }
+}
+</script>
 {% endblock %}

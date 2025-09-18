@@ -39,12 +39,12 @@
         <form action="{{ url_for('imou_save_data') }}" method="post">
             <div class="form-grid">
                 <div class="form-group">
-                    <label>SN</label>
+                    <label>SERIAL NUMBER</label>
                     <input type="text" value="{{ temp_data.sn }}" readonly>
                     <input type="hidden" name="sn" value="{{ temp_data.sn }}">
                 </div>
                 <div class="form-group">
-                    <label>SC</label>
+                    <label>SECURITY CODE</label>
                     <input type="text" value="{{ temp_data.sc }}" readonly>
                     <input type="hidden" name="sc" value="{{ temp_data.sc }}">
                 </div>
@@ -66,8 +66,11 @@
     <section class="data-section">
         <div class="data-header">
             <h2>Dữ liệu đã lưu</h2>
-            <a href="{{ url_for('imou_export_excel') }}" class="export-button">Export Excel</a>
+            <button type="button" class="export-button" onclick="exportImouExcel()">Export Excel</button>
         </div>
+        <form id="exportFormImou" action="{{ url_for('imou_export_excel') }}" method="post" style="display:none;">
+            <input type="hidden" name="title" id="exportTitleImou">
+        </form>
         <div class="data-grid hik-data-grid">
             <div class="grid-header">
                 {% macro sortable_header(column_key, column_display) %}
@@ -81,8 +84,8 @@
                         </a>
                     </div>
                 {% endmacro %}
-                {{ sortable_header('stt', 'STT') }}
-                {{ sortable_header('sn', 'SN') }}
+                {{ sortable_header('stt', 'No.') }}
+                {{ sortable_header('sn', 'SERIAL NUMBER') }}
                 {{ sortable_header('note', 'NOTE') }}
             </div>
             <div class="grid-body">
@@ -101,5 +104,13 @@
                 {% endif %}
             </div>
         </div>
-    </section>
+<script>
+function exportImouExcel() {
+    const title = prompt("Vui lòng nhập tiêu đề cho file Excel:", "Dữ liệu quét IMOU");
+    if (title !== null) { // Nếu người dùng không nhấn Cancel
+        document.getElementById('exportTitleImou').value = title;
+        document.getElementById('exportFormImou').submit();
+    }
+}
+</script>
 {% endblock %}
