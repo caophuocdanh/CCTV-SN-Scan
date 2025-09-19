@@ -372,3 +372,26 @@ footer {
 .back-button:hover {
     text-decoration: underline;
 }
+
+/* Flash Messages Styling */
+.flashes.red {
+    background-color: #fff0f0; /* Rất nhẹ, gần như trắng */
+    border: 1px dashed #ff6b6b; /* Màu đỏ nhạt hơn, nét đứt */
+    color: #d63031; /* Màu chữ đỏ đậm hơn một chút */
+    padding: 10px;
+    margin: 15px auto; /* Add some margin above and below, auto for horizontal centering */
+    border-radius: 6px; /* Slightly larger border-radius */
+    text-align: center;
+    font-weight: 600; /* Slightly less bold */
+    max-width: 80%; /* Limit width for better appearance */
+}
+
+.flashes.red .flash-error {
+    color: #d63031; /* Ensure error messages are red */
+}
+
+.flashes.red .flash-success {
+    background-color: #e7f3ff; /* Light blue for success */
+    border: 1px dashed #1877f2; /* Blue border */
+    color: #1877f2; /* Blue text */
+}

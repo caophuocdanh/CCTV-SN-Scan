@@ -9,16 +9,18 @@
 </head>
 <body>
     <main>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <ul class="flashes">
-                    {% for category, message in messages %}
-                        <li class="flash-{{ category }}">{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
+
         {% block content %}{% endblock %}
     </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const flashMessages = document.querySelector('.flashes');
+            if (flashMessages) {
+                setTimeout(function() {
+                    flashMessages.style.display = 'none';
+                }, 3000); // 3000 milliseconds = 3 seconds
+            }
+        });
+    </script>
 </body>
 </html>

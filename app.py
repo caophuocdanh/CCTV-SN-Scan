@@ -215,7 +215,7 @@ def imou_export_excel():
     """Xuất dữ liệu IMOU ra file Excel đã được định dạng."""
     records = read_data(IMOU_DATA_FILE)
     if not records:
-        flash('Không có dữ liệu IMOU để xuất.', 'warning')
+
         return redirect(url_for('imou_index'))
 
     title = request.form.get('title', 'Dữ liệu quét IMOU') # Lấy title từ form, mặc định là 'Dữ liệu quét IMOU'
@@ -317,7 +317,7 @@ def hik_export_excel():
     """Xuất dữ liệu HIK ra file Excel đã được định dạng."""
     records = read_data(HIK_DATA_FILE)
     if not records:
-        flash('Không có dữ liệu Hikvision để xuất.', 'warning')
+
         return redirect(url_for('hik_index'))
 
     title = request.form.get('title', 'Dữ liệu quét Hikvision') # Lấy title từ form, mặc định là 'Dữ liệu quét Hikvision'
@@ -458,7 +458,7 @@ def dahua_export_excel():
     """Xuất dữ liệu Dahua ra file Excel đã được định dạng."""
     records = read_data(DAHUA_DATA_FILE)
     if not records:
-        flash('Không có dữ liệu Dahua để xuất.', 'warning')
+
         return redirect(url_for('dahua_index'))
 
     title = request.form.get('title', 'Dữ liệu quét DAHUA') # Lấy title từ form, mặc định là 'Dữ liệu quét DAHUA'
@@ -529,4 +529,4 @@ def dahua_export_excel():
     )
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', debug=False)

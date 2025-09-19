@@ -4,15 +4,7 @@
 
 {% block content %}
     <a href="{{ url_for('home') }}" class="back-button">← Quay lại Trang chủ</a>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul class="flashes">
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+
     <header>
         <h1>TRÌNH QUÉT MÃ QR IMOU</h1>
         <p>Chọn một hình ảnh để tự động quét và chuẩn bị lưu thông tin.</p>
@@ -24,6 +16,26 @@
             <input type="file" name="file" id="file" accept="image/*">
         </form>
     </section>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes red">
+                {% for category, message in messages %}
+                    <div class="flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const flashMessages = document.querySelector('.flashes');
+                    if (flashMessages) {
+                        setTimeout(function() {
+                            flashMessages.style.display = 'none';
+                        }, 3000); // 3000 milliseconds = 3 seconds
+                    }
+                });
+            </script>
+        {% endif %}
+    {% endwith %}
 
     {% if error %}
     <section class="result-section">
