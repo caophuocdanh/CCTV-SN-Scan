@@ -225,6 +225,16 @@ footer {
     align-items: center;
 }
 
+.dahua-data-grid .grid-header,
+.dahua-data-grid .grid-row {
+    grid-template-columns: 10% 35% 25% 30%; /* No, SN, Note, Time */
+}
+
+.imou-data-grid .grid-header,
+.imou-data-grid .grid-row {
+    grid-template-columns: 5% 30% 25% 15% 25%; /* No, SN, SC, Note, Time */
+}
+
 .grid-header {
     background-color: #f0f2f5;
     font-weight: bold;

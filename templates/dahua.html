@@ -73,7 +73,7 @@
         <form id="exportFormDahua" action="{{ url_for('dahua_export_excel') }}" method="post" style="display:none;">
             <input type="hidden" name="title" id="exportTitleDahua">
         </form>
-        <div class="data-grid hik-data-grid">
+        <div class="data-grid dahua-data-grid">
             <div class="grid-header">
                 {% macro sortable_header(column_key, column_display) %}
                     <div class="grid-item">
@@ -87,8 +87,9 @@
                     </div>
                 {% endmacro %}
                 {{ sortable_header('stt', 'No.') }}
-                {{ sortable_header('sn', 'SERIAL NUMBER') }}
-                {{ sortable_header('note', 'NOTE') }}
+                {{ sortable_header('sn', 'Serial Number') }}
+                {{ sortable_header('note', 'Note') }}
+                {{ sortable_header('timestamp', 'Timestamp') }}
             </div>
             <div class="grid-body">
                 {% if records %}
@@ -97,6 +98,7 @@
                             <div class="grid-item" title="{{ record.stt }}">{{ record.stt }}</div>
                             <div class="grid-item" title="{{ record.sn }}">{{ record.sn }}</div>
                             <div class="grid-item" title="{{ record.note }}">{{ record.note }}</div>
+                            <div class="grid-item" title="{{ record.timestamp }}">{{ record.timestamp }}</div>
                         </div>
                     {% endfor %}
                 {% else %}
@@ -109,7 +111,7 @@
     </section>
 <script>
 function exportDahuaExcel() {
-    const title = prompt("Vui lòng nhập tiêu đề cho file Excel:", "Dữ liệu quét Dahua");
+    const title = prompt("Vui lòng nhập tiêu đề cho file Excel:", " Dahua");
     if (title !== null) { // Nếu người dùng không nhấn Cancel
         document.getElementById('exportTitleDahua').value = title;
         document.getElementById('exportFormDahua').submit();

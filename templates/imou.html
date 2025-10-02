@@ -83,7 +83,7 @@
         <form id="exportFormImou" action="{{ url_for('imou_export_excel') }}" method="post" style="display:none;">
             <input type="hidden" name="title" id="exportTitleImou">
         </form>
-        <div class="data-grid hik-data-grid">
+        <div class="data-grid imou-data-grid">
             <div class="grid-header">
                 {% macro sortable_header(column_key, column_display) %}
                     <div class="grid-item">
@@ -97,8 +97,10 @@
                     </div>
                 {% endmacro %}
                 {{ sortable_header('stt', 'No.') }}
-                {{ sortable_header('sn', 'SERIAL NUMBER') }}
-                {{ sortable_header('note', 'NOTE') }}
+                {{ sortable_header('sn', 'Serial Number') }}
+                {{ sortable_header('sc', 'Security Code') }}
+                {{ sortable_header('note', 'Note') }}
+                {{ sortable_header('timestamp', 'Timestamp') }}
             </div>
             <div class="grid-body">
                 {% if records %}
@@ -106,7 +108,9 @@
                         <div class="grid-row">
                             <div class="grid-item" title="{{ record.stt }}">{{ record.stt }}</div>
                             <div class="grid-item" title="{{ record.sn }}">{{ record.sn }}</div>
+                            <div class="grid-item" title="{{ record.sc }}">{{ record.sc }}</div>
                             <div class="grid-item" title="{{ record.note }}">{{ record.note }}</div>
+                            <div class="grid-item" title="{{ record.timestamp }}">{{ record.timestamp }}</div>
                         </div>
                     {% endfor %}
                 {% else %}
@@ -118,7 +122,7 @@
         </div>
 <script>
 function exportImouExcel() {
-    const title = prompt("Vui lòng nhập tiêu đề cho file Excel:", "Dữ liệu quét IMOU");
+    const title = prompt("Vui lòng nhập tiêu đề cho file Excel:", " IMOU");
     if (title !== null) { // Nếu người dùng không nhấn Cancel
         document.getElementById('exportTitleImou').value = title;
         document.getElementById('exportFormImou').submit();

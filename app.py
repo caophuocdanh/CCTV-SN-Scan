@@ -137,12 +137,14 @@ def imou_save_data():
         return redirect(url_for('imou_index'))
 
     records = read_data(IMOU_DATA_FILE)
+    timestamp_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     new_record = {
         'stt': len(records) + 1,
         'sn': sn,
         'sc': sc,
         'pid': pid,
-        'note': note
+        'note': note,
+        'timestamp': timestamp_str
     }
     records.append(new_record)
     write_data(records, IMOU_DATA_FILE)
@@ -218,11 +220,16 @@ def imou_export_excel():
 
         return redirect(url_for('imou_index'))
 
-    title = request.form.get('title', 'Dữ liệu quét IMOU') # Lấy title từ form, mặc định là 'Dữ liệu quét IMOU'
+    title = request.form.get('title', 'IMOU') # Lấy title từ form, mặc định là 'IMOU'
 
     df = pd.DataFrame(records)
-    # Viết hoa tiêu đề cột
-    df.columns = ['No.', 'SERIAL NUMBER', 'SECURITY CODE', 'PID', 'NOTE']
+    # Xử lý trường hợp dữ liệu cũ không có cột timestamp
+    if 'timestamp' not in df.columns:
+        df['timestamp'] = 'N/A'
+    # Đảm bảo thứ tự cột
+    df = df[['stt', 'sn', 'sc', 'pid', 'note', 'timestamp']]
+    # Đổi tên cột
+    df.columns = ['No.', 'Serial Number', 'Security Code', 'PID', 'Note', 'Timestamp']
 
     output = io.BytesIO()
     writer = pd.ExcelWriter(output, engine='openpyxl')
@@ -303,10 +310,12 @@ def hik_save_data():
         return redirect(url_for('hik_index'))
 
     records = read_data(HIK_DATA_FILE)
+    timestamp_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     new_record = {
         'stt': len(records) + 1,
         'sn': sn,
-        'note': note
+        'note': note,
+        'timestamp': timestamp_str
     }
     records.append(new_record)
     write_data(records, HIK_DATA_FILE)
@@ -320,11 +329,16 @@ def hik_export_excel():
 
         return redirect(url_for('hik_index'))
 
-    title = request.form.get('title', 'Dữ liệu quét Hikvision') # Lấy title từ form, mặc định là 'Dữ liệu quét Hikvision'
+    title = request.form.get('title', 'Hikvision') # Lấy title từ form, mặc định là 'Hikvision'
 
     df = pd.DataFrame(records)
-    # Viết hoa tiêu đề cột
-    df.columns = ['No.', 'SERIAL NUMBER', 'NOTE']
+    # Xử lý trường hợp dữ liệu cũ không có cột timestamp
+    if 'timestamp' not in df.columns:
+        df['timestamp'] = 'N/A'
+    # Đảm bảo thứ tự cột
+    df = df[['stt', 'sn', 'note', 'timestamp']]
+    # Đổi tên cột
+    df.columns = ['No.', 'Serial Number', 'Note', 'Timestamp']
 
     output = io.BytesIO()
     writer = pd.ExcelWriter(output, engine='openpyxl')
@@ -424,10 +438,12 @@ def dahua_save_data():
         return redirect(url_for('dahua_index'))
 
     records = read_data(DAHUA_DATA_FILE)
+    timestamp_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     new_record = {
         'stt': len(records) + 1,
         'sn': sn,
-        'note': note
+        'note': note,
+        'timestamp': timestamp_str
     }
     records.append(new_record)
     write_data(records, DAHUA_DATA_FILE)
@@ -461,11 +477,19 @@ def dahua_export_excel():
 
         return redirect(url_for('dahua_index'))
 
-    title = request.form.get('title', 'Dữ liệu quét DAHUA') # Lấy title từ form, mặc định là 'Dữ liệu quét DAHUA'
+    title = request.form.get('title', 'DAHUA') # Lấy title từ form, mặc định là 'DAHUA'
 
     df = pd.DataFrame(records)
+    
+    # Xử lý trường hợp dữ liệu cũ không có cột timestamp
+    if 'timestamp' not in df.columns:
+        df['timestamp'] = 'N/A'
+        
+    # Đảm bảo thứ tự cột
+    df = df[['stt', 'sn', 'note', 'timestamp']]
+    
     # Viết hoa tiêu đề cột
-    df.columns = ['No.', 'SERIAL NUMBER', 'NOTE']
+    df.columns = ['No.', 'Serial Number', 'Note', 'Timestamp']
 
     output = io.BytesIO()
     writer = pd.ExcelWriter(output, engine='openpyxl')
